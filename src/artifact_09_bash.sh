@@ -1,0 +1,1 @@
+docker logs -f univibe_relayer_service

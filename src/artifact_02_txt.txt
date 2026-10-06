@@ -1,0 +1,27 @@
++---------------------------------------------------------------------------------+
+|                               SOLANA MAINNET / DEVNET                           |
+|                                                                                 |
+|  [Organizer Keypair]  ----> Instruction: initialize_event                      |
+|                                     |                                           |
+|                                     v                                           |
+|                     [EventVault PDA: seeds=(b"vault", event_id)]                |
+|                                     |                                           |
+|  [Student Keypair]    ----> Instruction: check_in_and_claim                     |
+|                                     |                                           |
+|                                     +---- Validates: seeds=(b"attendance", ...) |
+|                                     +---- CPI Transfer: Vault PDA -> Student    |
+|                                     +---- Emits: Log CheckInEvent               |
++-------------------------------------+-------------------------------------------+
+                                      |
+                               WebSocket RPC (logsSubscribe)
+                                      |
+                                      v
++---------------------------------------------------------------------------------+
+|                       UNIVIBE ENTERPRISE INTEGRATION RELAYER                     |
+|                                                                                 |
+|   +--------------------------+                 +----------------------------+   |
+|   |   Resend Email Service   |                 |   Discord / Slack Engine   |   |
+|   |  - HTML Claim Receipt    |                 |  - Rich Embed Live Alerts  |   |
+|   |  - Block Explorer Link   |                 |  - Dynamic Leaderboards    |   |
+|   +--------------------------+                 +----------------------------+   |
++---------------------------------------------------------------------------------+

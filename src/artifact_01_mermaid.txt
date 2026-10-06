@@ -1,0 +1,24 @@
+flowchart TD
+    subgraph Campus Organization ["🎓 Event Organizer / DAO Treasury"]
+        A[Initialize Event Vault PDA] -->|Deposit Bounty/Grant Pool| B(Program Vault PDA)
+    end
+
+    subgraph Solana Runtime ["⚡ Solana Blockchain (Anchor Program)"]
+        B --> C{Attendee Check-in Invocation}
+        D[(Attendee PDA Record)] -->|Check seeds: ['attendance', event_id, student_pubkey]| C
+        C -->|Assert: Record Uninitialized| E[Mark Record as Claimed]
+        C -->|Assert: Vault Balance >= Reward| F[Transfer SOL from Vault PDA to Student]
+        E --> G[Emit CheckInEvent]
+        F --> G
+    end
+
+    subgraph Student ["🎒 University Student"]
+        H[Scan Event Ephemeral QR] -->|Sign Transaction| C
+        F -.->|SOL Liquid Balance Received| H
+    end
+
+    subgraph Enterprise Bridge ["🏢 Off-Chain Worker & Webhooks"]
+        G -->|WebSocket onLogs RPC| I[UniVibe Listener Engine]
+        I --> J[Resend API: Dispatch Email Receipt & NFT Credential Link]
+        I --> K[Discord / Slack Webhook: Post Live Campus Leaderboard]
+    end
