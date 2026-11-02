@@ -1,0 +1,26 @@
+# Multi-stage production container for UniVibe Event Engine
+FROM node:20-alpine AS builder
+
+WORKDIR /usr/src/app
+COPY package.json yarn.lock* ./
+RUN yarn install --frozen-lockfile
+
+COPY tsconfig.json ./
+COPY src ./src
+RUN yarn build
+
+FROM node:20-alpine AS runner
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+
+COPY package.json yarn.lock* ./
+RUN yarn install --production --frozen-lockfile
+
+COPY --from=builder /usr/src/app/dist ./dist
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1
+
+CMD ["node", "dist/indexer.js"]

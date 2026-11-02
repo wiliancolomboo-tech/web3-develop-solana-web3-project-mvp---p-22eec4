@@ -1,0 +1,6 @@
+3/ We’ve open-sourced the entire production engine, turnkey Docker container, and full QA test suite for the IFK UNI community.
+
+Check out our MVP on Devnet & Github: github.com/univibe-solana/univibe-protocol
+
+Let’s bring collegiate micro-capital to life on @solana! 🎓⚡️
+#Solana #IFKUni #Vibeathon #Web3Dev

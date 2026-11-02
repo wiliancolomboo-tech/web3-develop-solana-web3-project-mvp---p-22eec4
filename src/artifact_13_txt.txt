@@ -1,0 +1,8 @@
+University innovation should move at the speed of code, not administrative wire processing.
+
+UniVibe turns every campus club and hackathon into an autonomous builder accelerator.
+
+Check out our production MVP, open-source Anchor contracts & demo:
+🔗 https://github.com/univibe-protocol/univibe-core
+
+Shoutout to the @IFK_UNI team for hosting the Vibeathon! 🚀

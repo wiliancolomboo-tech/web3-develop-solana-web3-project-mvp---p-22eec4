@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  campusvibe-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campusvibe-event-daemon
+    restart: always
+    environment:
+      - PROGRAM_ID=CampVibe111111111111111111111111111111111111
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - SOLANA_WS_URL=wss://api.devnet.solana.com
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - FINANCE_ADMIN_EMAIL=bursar@university.edu
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

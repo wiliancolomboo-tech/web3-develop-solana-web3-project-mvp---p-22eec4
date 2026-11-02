@@ -1,0 +1,6 @@
+2/ Under the hood:
+🔒 PDA-enforced non-custodial milestone vaults
+⚡ Built with @coral_xyz Anchor 0.30+ for deterministic release
+🔔 Automated off-chain enterprise event bridge powered by @resend & Discord Webhooks
+
+No manual review logs. Proof verified. Lamports unlocked.

@@ -1,0 +1,7 @@
+2/4 🛠️ How it works:
+• Sponsors deposit to seed-isolated PDA Vaults (Zero-custody)
+• Hacker teams submit verifiable on-chain milestone deliverables
+• Peer faculty quorum casts stake-weighted quadratic attestations
+• Instant sub-second milestone releases with @resend transactional audit trails
+
+All at 400ms finality. 🚀

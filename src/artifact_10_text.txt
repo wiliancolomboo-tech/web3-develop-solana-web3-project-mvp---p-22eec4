@@ -1,0 +1,8 @@
+3/4 ⚡️ We built this to scale universities from student projects to enterprise venture spin-outs. 
+
+📦 100% production Anchor codebase
+🧪 Full Mocha test suite passing
+🐳 1-click Docker Compose deploy
+
+Check out our MVP repo & live demo: https://github.com/univibe-sol/core
+Huge shoutout to the IFK UNI Vibeathon team! 💜

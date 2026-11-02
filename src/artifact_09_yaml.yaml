@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  univibe-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-relayer
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=UniVibe1111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+    networks:
+      - univibe-net
+
+networks:
+  univibe-net:
+    driver: bridge

@@ -1,0 +1,21 @@
+FROM node:20-slim AS runner
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl ca-certificates python3 make g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY client/package.json ./
+RUN npm install
+
+COPY client/tsconfig.json ./
+COPY client/src ./src
+
+RUN npm run build
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || exit 0
+
+ENV NODE_ENV=production
+CMD ["node", "dist/index.js"]

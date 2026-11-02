@@ -1,0 +1,13 @@
+[ Alumni / Sponsor ]
+            │
+            ▼ (Fund SOL/USDC)
+┌─────────────────────────┐     Attestation Passed     ┌────────────────────────┐
+│  UniVibe PDA Vault      │ ─────────────────────────> │ Student Founder Wallet │
+│  (Solana Smart Program) │                            └────────────────────────┘
+└─────────────────────────┘
+            │
+            ▼ (Event Emission)
+┌─────────────────────────┐
+│ UniVibe Enterprise      │ ───> [Resend Email Notification]
+│ Automation Daemon       │ ───> [Campus Discord/Slack Feed]
+└─────────────────────────┘

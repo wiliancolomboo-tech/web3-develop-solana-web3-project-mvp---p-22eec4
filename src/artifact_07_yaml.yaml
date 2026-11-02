@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  vibestream-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibestream-relay-daemon
+    restart: always
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - VIBESTREAM_PROGRAM_ID=Vibe111111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - PORT=8080
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

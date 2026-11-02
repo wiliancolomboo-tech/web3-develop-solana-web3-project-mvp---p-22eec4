@@ -1,24 +1,26 @@
 flowchart TD
-    subgraph Campus Organization ["🎓 Event Organizer / DAO Treasury"]
-        A[Initialize Event Vault PDA] -->|Deposit Bounty/Grant Pool| B(Program Vault PDA)
+    subgraph Client & Identity Layer
+        A[Sponsor / Hackathon Organizer] -->|1. Initialize Grant & Deposit SOL/USDC| B[CampusVibe CLI / WebApp]
+        S[Student Builder / Grantee] -->|3. Submit Proof of Work / Milestone URL| B
+        R[Collegiate Reviewer Committee] -->|4. Sign Evaluation / Approval Tx| B
     end
 
-    subgraph Solana Runtime ["⚡ Solana Blockchain (Anchor Program)"]
-        B --> C{Attendee Check-in Invocation}
-        D[(Attendee PDA Record)] -->|Check seeds: ['attendance', event_id, student_pubkey]| C
-        C -->|Assert: Record Uninitialized| E[Mark Record as Claimed]
-        C -->|Assert: Vault Balance >= Reward| F[Transfer SOL from Vault PDA to Student]
-        E --> G[Emit CheckInEvent]
-        F --> G
+    subgraph Solana Runtime Engine
+        B -->|Anchor RPC Transaction| C[CampusVibe Core Program]
+        C -->|Derive Escrow & Vault PDA| D[(Program Vault PDA: Sol/Spl Vault)]
+        C -->|Emit Event: MilestoneSubmitted| E[Anchor Event Bus]
+        C -->|Emit Event: MilestoneApproved| E
+        C -->|Atomic Transfer on Consensus| D -->|Disburse Capital| S
     end
 
-    subgraph Student ["🎒 University Student"]
-        H[Scan Event Ephemeral QR] -->|Sign Transaction| C
-        F -.->|SOL Liquid Balance Received| H
+    subgraph Enterprise Integration Relayer
+        E -.->|WebSocket / Geyser Stream| F[CampusVibe Event Relayer Service]
+        F -->|Validate Cryptographic Signatures| G{Event Type Dispatcher}
+        G -->|Deposit or Submission| H[Discord/Slack Campus Bot]
+        G -->|Milestone Approval & Release| I[Resend API: Campus Finance Invoicing]
     end
 
-    subgraph Enterprise Bridge ["🏢 Off-Chain Worker & Webhooks"]
-        G -->|WebSocket onLogs RPC| I[UniVibe Listener Engine]
-        I --> J[Resend API: Dispatch Email Receipt & NFT Credential Link]
-        I --> K[Discord / Slack Webhook: Post Live Campus Leaderboard]
+    subgraph External Stakeholders
+        H -->|Broadcast Alert to Channel| J[Campus DAO / Discord Community]
+        I -->|Direct Email with Tx Receipt & PDF metadata| K[University Bursar / Sponsor Accounting]
     end

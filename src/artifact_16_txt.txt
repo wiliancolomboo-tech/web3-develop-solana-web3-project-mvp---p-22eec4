@@ -1,0 +1,6 @@
+Universities don’t need more static pitch decks—they need verifiable builders with verifiable track records.
+
+Built with complete Anchor tests, enterprise Docker daemon, and production safety.
+
+Live demo & open-source repo: https://github.com/univibe-protocol/univibe-core
+Let’s vibe! 🚀⚡️ #Solana #Vibeathon #IFKUni

@@ -1,0 +1,21 @@
+{
+  "name": "campus-vibe-relayer",
+  "version": "1.0.0",
+  "description": "Production event listener and enterprise notification engine for CampusVibe",
+  "main": "dist/relayer.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node dist/relayer.js",
+    "cli": "ts-node src/cli.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.8",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.4",
+    "ts-node": "^10.9.2"
+  }
+}

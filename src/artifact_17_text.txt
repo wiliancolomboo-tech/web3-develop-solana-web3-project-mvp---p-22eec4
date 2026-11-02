@@ -1,0 +1,5 @@
+2/4 🛠️ How it works:
+• Sponsors lock hackathon grants into deterministic Anchor PDAs.
+• Student teams unlock capital tranches via milestone deliverable submissions.
+• Mentors & corporate judges confirm completion with dual-consensus threshold attestations.
+• Integrated with @resend for enterprise email alerts & Slack webhooks! 🚀

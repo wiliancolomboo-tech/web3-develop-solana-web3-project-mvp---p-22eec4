@@ -1,0 +1,31 @@
+flowchart TD
+    subgraph ClientLayer ["Client & Institutional Sponsors"]
+        SP[Sponsor / Alumni]
+        ST[Student Founder]
+        FAC[Faculty / Mentor]
+    end
+
+    subgraph SolanaCore ["Solana On-Chain Program (UniVibe Anchor Engine)"]
+        REG["Project Registry Account<br/>(PDA: ['project', authority, id])"]
+        ESCROW["Milestone Vault Escrow<br/>(PDA: ['vault', project_key])"]
+        ATTEST["Attestation Record<br/>(PDA: ['attest', project_key, milestone_idx])"]
+    end
+
+    subgraph OffChainEngine ["Off-Chain Enterprise Automation Daemon"]
+        LISTENER["WebSocket Block/Event Listener<br/>(Solana RPC Gateway)"]
+        DISPATCH["Event Dispatcher & Validator"]
+        RESEND["Resend API Gateway<br/>(Transactional Email Delivery)"]
+        DISCORD["Campus Discord/Slack Webhook<br/>(Public Bulletin Broadcast)"]
+    end
+
+    SP -->|"1. initialize_project() & fund_endowment()"| REG
+    SP -->|"Funds (SOL)"| ESCROW
+    ST -->|"2. submit_milestone(proof_uri)"| REG
+    FAC -->|"3. attest_milestone(approved: true)"| ATTEST
+    ST -->|"4. claim_milestone_funds()"| ESCROW
+    ESCROW -->|"Direct SOL Transfer"| ST
+
+    SolanaCore -.->|"Emits Anchor Events"| LISTENER
+    LISTENER --> DISPATCH
+    DISPATCH -->|"Disbursement Notice"| RESEND
+    DISPATCH -->|"Live Grant Broadcast"| DISCORD

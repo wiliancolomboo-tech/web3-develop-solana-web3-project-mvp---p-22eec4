@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  univibe-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-relayer-prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=V1BEkQZ8k798YyVz39Vj4w8cQ9XbH6uQ5h8fX4tK1pA
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

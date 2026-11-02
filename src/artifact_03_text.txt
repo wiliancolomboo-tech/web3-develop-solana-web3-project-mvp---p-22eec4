@@ -1,0 +1,4 @@
+programs/campus-vibe/
+├── Cargo.toml
+└── src/
+    └── lib.rs

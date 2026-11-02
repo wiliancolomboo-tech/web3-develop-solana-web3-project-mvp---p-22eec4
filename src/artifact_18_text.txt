@@ -1,0 +1,8 @@
+3/4 🌐 Plus: Campus peers can "Vibe-Stake" SOL onto their favorite student projects using an on-chain quadratic formula that amplifies university matching pools without whale dominance.
+
+100% open-source, fully tested, and containerized.
+
+Check out the code & deploy with 1 click:
+🔗 https://github.com/univibe-lab/univibe-protocol
+
+Let's vibe on Solana! 🏎️💨 #Solana #Vibeathon #Web3Campus

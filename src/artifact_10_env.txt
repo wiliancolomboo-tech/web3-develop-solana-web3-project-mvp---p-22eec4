@@ -1,0 +1,6 @@
+SOLANA_RPC_URL=https://api.devnet.solana.com
+PROGRAM_ID=UniVibe111111111111111111111111111111111111
+ADMIN_EMAIL=finance@ifk-univibeathon.org
+RESEND_API_KEY=re_123456789_enterprise_mock_key
+NOTIFICATION_SENDER_EMAIL=univibe@updates.resend.dev
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder

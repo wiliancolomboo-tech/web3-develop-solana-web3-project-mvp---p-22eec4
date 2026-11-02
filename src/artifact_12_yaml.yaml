@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  campus-vibe-oracle:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campus_vibe_oracle_service
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=V1beCamPusXN8oE6Jk4K7uQeFvPzSgH2rLmTo9yWdqZ
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - NOTIFICATION_EMAIL=hackathon-evaluators@university.edu
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

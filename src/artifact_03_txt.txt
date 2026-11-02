@@ -1,0 +1,23 @@
++-----------------------------------------------------------------------------------+
+|                            SolVibe System Topology                                |
++-----------------------------------------------------------------------------------+
+| [Frontend / CLI Client]                                                           |
+|    |                                                                              |
+|    +--> RPC: devnet.solana.com / mainnet-beta (Ed25519 Signed Transactions)       |
+|            |                                                                      |
+|            v                                                                      |
+| [Solana Validator Network] <---> Program: SolVibe (Anchor 0.30+)                  |
+|    |                             - Seeds: ["grant", sponsor, grant_id]            |
+|    |                             - Vault: ["vault", grant_pda]                    |
+|    |                                                                              |
+|    +--> Anchor Event Logs (PubSub / WebSocket Endpoint)                           |
+|            |                                                                      |
+|            v                                                                      |
+| [SolVibe Integration Daemon (Node.js / TypeScript)]                               |
+|    |-- Environment Isolation (.env.production)                                    |
+|    |-- Dead Letter Queue & Retry Worker (Linear Backoff)                          |
+|    |                                                                              |
+|    +--> HTTPS REST -> https://api.resend.com/emails (Student & Faculty Alert)     |
+|    +--> HTTPS POST -> Discord Webhook API (Live IFK Leaderboard & Vibe Feed)      |
+|    +--> HTTPS POST -> Slack Incoming Webhook (Institutional Audit Trail)          |
++-----------------------------------------------------------------------------------+

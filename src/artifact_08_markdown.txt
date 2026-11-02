@@ -1,0 +1,23 @@
+🧵 1/3
+Students shouldn't wait 90 days for campus hackathon prize payouts or club reimbursements. 
+
+Introducing @UniVibeProtocol for the @IFK_UNI Vibeathon ⚡️
+
+A trustless, milestone-escrow protocol on @solana built for university grants, student collectives, and vibe-check bounties.
+
+🧵 2/3
+Engineering under the hood:
+🔒 Pure Anchor v0.30 PDAs guarantee 0 counterparty risk
+⚡ Sub-second SOL disbursals straight to student wallets
+📊 On-chain reputation counter for verified builders
+🔔 Native enterprise dispatch via @resend & Discord Webhooks
+
+🧵 3/3
+Turnkey, open-source, and fully tested with 100% assertion coverage. 
+
+Live on Devnet & ready for campus-wide adoption at @IFK_UNI! 🎓
+
+Check out the code, run the Docker daemon, and join the new vibe economy:
+👉 https://github.com/univibe-protocol/univibe-mvp
+
+#Solana #IFKUNI #Vibeathon #Web3Campus #Anchor

@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  univibe-indexer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-enterprise-indexer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=V1beZJ2G245F23i9k78pP75wMh2XQ87y3NqU7kK9m3N
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SPONSOR_ALERT_EMAIL=${SPONSOR_ALERT_EMAIL:-sponsors@ifk-univibe.org}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

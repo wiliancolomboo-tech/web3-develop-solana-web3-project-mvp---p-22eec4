@@ -1,0 +1,22 @@
+================================================================================
+OPERATIONAL RUNBOOK: UniVibe Production Cluster
+================================================================================
+
+1. LOG STREAMING & HEALTH MONITORING:
+   - Check container status:
+     docker ps -f "name=univibe-event-relayer"
+   - Stream logs with real-time timestamps:
+     docker logs -f --tail=100 univibe-event-relayer
+
+2. ROTATING RESEND API KEYS:
+   - Update RESEND_API_KEY in the root .env file.
+   - Run: docker-compose up -d --no-deps univibe-relayer
+
+3. RECOVERING FROM RPC DROPOUTS:
+   - The relayer automatically reconnects using WebSocket heartbeat pings.
+   - If public Solana Devnet endpoints rate-limit:
+     Configure SOLANA_RPC_URL to a dedicated QuickNode or Helius RPC node.
+
+4. RE-INITIALIZING PROTOCOL STATE:
+   - In case of devnet reset:
+     ts-node ./scripts/init-registry.ts

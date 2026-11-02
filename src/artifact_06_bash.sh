@@ -1,14 +1,20 @@
-# 1. Install dependencies & build contract
+# 1. Clone repository and install dependencies
+git clone https://github.com/univibe-protocol/univibe-core.git
+cd univibe-core
 npm install
+
+# 2. Build Anchor smart contract
 anchor build
 
-# 2. Deploy Anchor Program to Solana Devnet
+# 3. Synchronize program keys
+solana address -k target/deploy/univibe_protocol-keypair.json
+# Ensure this matches declare_id!() in lib.rs
+
+# 4. Deploy to Solana Devnet
 solana config set --url https://api.devnet.solana.com
 solana airdrop 2
 anchor deploy --provider.cluster devnet
 
-# 3. Copy Program ID to Anchor.toml and programs/univibe/src/lib.rs, then rebuild:
-anchor build && anchor deploy --provider.cluster devnet
-
-# 4. Run full test matrix
-anchor test --skip-local-validator
+# 5. Seed environment variables for automation worker
+cp .env.example .env
+# Fill in DISCORD_WEBHOOK_URL and RESEND_API_KEY

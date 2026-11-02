@@ -1,0 +1,8 @@
+PORT=3000
+NODE_ENV=production
+RPC_HTTP_URL=https://api.devnet.solana.com
+RPC_WEBSOCKET_URL=wss://api.devnet.solana.com
+PROGRAM_ID=UniP1se111111111111111111111111111111111111
+ENTERPRISE_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_your_real_key_here
+SPONSOR_AUDIT_EMAIL=sponsors@ifk.uni.edu

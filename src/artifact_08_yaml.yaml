@@ -5,14 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: univibe_relayer_service
+    container_name: univibe-automation-relayer
     restart: always
-    environment:
-      - NODE_ENV=production
-      - SOLANA_RPC_URL=https://api.devnet.solana.com
-      - PROGRAM_ID=UniV1bE111111111111111111111111111111111111
-      - DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_SAMPLE_WEBHOOK_PATH
-      - RESEND_API_KEY=re_1234567890abcdef
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     healthcheck:
@@ -20,3 +16,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,8 @@
+{
+  "status": "healthy",
+  "uptime": 86420,
+  "cluster": "solana-devnet",
+  "program_id": "V1BEkQ2zXk2Q7F6Z5FwK3t8yR9V7n6C9kX4W5Z6Y1B2",
+  "rpc_connectivity": "CONNECTED",
+  "processed_events": 142
+}

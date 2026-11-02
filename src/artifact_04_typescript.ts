@@ -1,125 +1,59 @@
+import * as anchor from "@coral-xyz/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { Program, AnchorProvider, Idl } from "@coral-xyz/anchor";
 import axios from "axios";
-import * as dotenv from "dotenv";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-interface CheckInPayload {
-  eventId: string;
-  attendee: string;
-  claimedAmountSol: number;
-  timestamp: number;
-  txSignature: string;
+interface FundsDisbursedEvent {
+  project: PublicKey;
+  beneficiary: PublicKey;
+  milestoneIndex: number;
+  amount: anchor.BN;
+  isFullyCompleted: boolean;
 }
 
-export class UniVibeRelayerService {
+interface MilestoneAttestedEvent {
+  project: PublicKey;
+  milestoneIndex: number;
+  mentor: PublicKey;
+  approved: boolean;
+  totalApprovals: number;
+  isMilestoneReady: boolean;
+}
+
+export class UniVibeRelayer {
   private connection: Connection;
-  private discordWebhookUrl: string;
   private resendApiKey: string;
+  private discordWebhookUrl: string;
   private programId: PublicKey;
 
   constructor() {
     const rpcUrl = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
-    this.connection = new Connection(rpcUrl, "confirmed");
-    this.discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
+    this.connection = new Connection(rpcUrl, { commitment: "confirmed", wsEndpoint: process.env.SOLANA_WS_URL });
     this.resendApiKey = process.env.RESEND_API_KEY || "";
-    this.programId = new PublicKey(
-      process.env.PROGRAM_ID || "UniV1bE111111111111111111111111111111111111"
-    );
+    this.discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
+    this.programId = new PublicKey(process.env.UNIVIBE_PROGRAM_ID || "UniVibe111111111111111111111111111111111111");
 
-    if (!this.discordWebhookUrl) {
-      console.warn("⚠️ Warning: DISCORD_WEBHOOK_URL is not set.");
-    }
     if (!this.resendApiKey) {
-      console.warn("⚠️ Warning: RESEND_API_KEY is not set.");
+      console.warn("[WARN] RESEND_API_KEY is not defined. Email notifications will run in mock mode.");
     }
   }
 
-  public async startListener(): Promise<void> {
-    console.log(`[UniVibe Relayer] Listening for on-chain events on ${this.programId.toBase58()}...`);
-
-    this.connection.onLogs(
-      this.programId,
-      async ({ logs, err, signature }) => {
-        if (err) return;
-
-        // Parse instruction execution and Anchor event markers
-        for (const log of logs) {
-          if (log.includes("Program log: Instruction: CheckInAndClaim")) {
-            console.log(`[CheckIn Detected] TX: ${signature}`);
-            
-            // Extract event context via parsed transaction
-            const parsedTx = await this.connection.getParsedTransaction(signature, {
-              maxSupportedTransactionVersion: 0,
-            });
-
-            if (!parsedTx || !parsedTx.meta) continue;
-
-            const attendee = parsedTx.transaction.message.accountKeys[2].pubkey.toBase58();
-            const payload: CheckInPayload = {
-              eventId: "IFK-UNI-VIBE-2025",
-              attendee,
-              claimedAmountSol: 0.05,
-              timestamp: Date.now(),
-              txSignature: signature,
-            };
-
-            await this.dispatchDiscordNotification(payload);
-            await this.dispatchResendEmailReceipt(payload, "student-builder@campus.edu");
-          }
-        }
-      },
-      "confirmed"
-    );
-  }
-
-  private async dispatchDiscordNotification(payload: CheckInPayload): Promise<void> {
-    if (!this.discordWebhookUrl) return;
-
-    const embed = {
-      title: "🎉 New Campus Vibe Check-In Confirmed!",
-      color: 0x14f195, // Solana Emerald
-      fields: [
-        { name: "Event ID", value: `\`${payload.eventId}\``, inline: true },
-        { name: "Attendee Pubkey", value: `\`${payload.attendee.slice(0, 4)}...${payload.attendee.slice(-4)}\``, inline: true },
-        { name: "Reward Disbursed", value: `${payload.claimedAmountSol} SOL`, inline: true },
-        { name: "Explorer Verification", value: `[View on Solana Explorer](https://explorer.solana.com/tx/${payload.txSignature}?cluster=devnet)` },
-      ],
-      footer: { text: "UniVibe Protocol • Powered by Solana" },
-      timestamp: new Date().toISOString(),
-    };
-
-    try {
-      await axios.post(this.discordWebhookUrl, { embeds: [embed] });
-      console.log(`[Discord] Webhook notification dispatched for ${payload.attendee}`);
-    } catch (error: any) {
-      console.error(`[Discord Webhook Error]: ${error.message}`);
+  public async sendTransactionalEmail(recipient: string, subject: string, htmlContent: string): Promise<void> {
+    if (!this.resendApiKey) {
+      console.log(`[MOCK EMAIL] To: ${recipient} | Subject: ${subject}`);
+      return;
     }
-  }
-
-  private async dispatchResendEmailReceipt(payload: CheckInPayload, recipientEmail: string): Promise<void> {
-    if (!this.resendApiKey) return;
 
     try {
       await axios.post(
         "https://api.resend.com/emails",
         {
-          from: "UniVibe Notifications <onboarding@resend.dev>",
-          to: [recipientEmail],
-          subject: `✨ Proof of Attendance & Grant Receipt: ${payload.eventId}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; background-color: #0d0e12; color: #ffffff; padding: 24px; border-radius: 8px;">
-              <h2 style="color: #14f195;">You're Checked In to ${payload.eventId}!</h2>
-              <p>Congratulations! Your cryptographic proof of attendance has been recorded on Solana.</p>
-              <div style="background-color: #1a1c24; padding: 16px; border-radius: 6px; margin: 16px 0;">
-                <p><strong>Attendee Key:</strong> ${payload.attendee}</p>
-                <p><strong>Disbursed Micro-Grant:</strong> ${payload.claimedAmountSol} SOL</p>
-                <p><strong>Transaction Signature:</strong> <a style="color: #9945ff;" href="https://explorer.solana.com/tx/${payload.txSignature}?cluster=devnet">${payload.txSignature.slice(0, 16)}...</a></p>
-              </div>
-              <p style="font-size: 12px; color: #888888;">UniVibe Protocol — IFK UNI Vibeathon MVP</p>
-            </div>
-          `,
+          from: "UniVibe Alerts <notifications@univibe.network>",
+          to: [recipient],
+          subject: subject,
+          html: htmlContent,
         },
         {
           headers: {
@@ -128,18 +62,98 @@ export class UniVibeRelayerService {
           },
         }
       );
-      console.log(`[Resend] Email receipt sent successfully to ${recipientEmail}`);
-    } catch (error: any) {
-      console.error(`[Resend Error]: ${error.response?.data || error.message}`);
+      console.log(`[RESEND SUCCESS] Sent notification to ${recipient}`);
+    } catch (err: any) {
+      console.error("[RESEND ERROR]", err.response?.data || err.message);
     }
+  }
+
+  public async postDiscordBroadcast(title: string, description: string, fields: Array<{ name: string; value: string }>): Promise<void> {
+    if (!this.discordWebhookUrl) {
+      console.log(`[MOCK DISCORD] ${title}: ${description}`);
+      return;
+    }
+
+    try {
+      await axios.post(this.discordWebhookUrl, {
+        username: "UniVibe Campus Oracle",
+        avatar_url: "https://cryptologos.cc/logos/solana-sol-logo.png",
+        embeds: [
+          {
+            title,
+            description,
+            color: 0x14f195, // Solana Green
+            fields,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      });
+      console.log(`[DISCORD SUCCESS] Broadcast posted`);
+    } catch (err: any) {
+      console.error("[DISCORD ERROR]", err.response?.data || err.message);
+    }
+  }
+
+  public async start(): Promise<void> {
+    console.log(`[UNIVIBE ORCHESTRATOR] Subscribed to Program: ${this.programId.toBase58()}`);
+
+    // Listen to Solana program logs
+    this.connection.onLogs(
+      this.programId,
+      async (logsContext) => {
+        if (logsContext.err) return;
+
+        const logs = logsContext.logs;
+        for (const log of logs) {
+          if (log.includes("FundsDisbursed")) {
+            console.log("[EVENT DETECTED] FundsDisbursed");
+            await this.handleFundsDisbursed(log, logsContext.signature);
+          } else if (log.includes("MilestoneAttested")) {
+            console.log("[EVENT DETECTED] MilestoneAttested");
+            await this.handleMilestoneAttested(log, logsContext.signature);
+          }
+        }
+      },
+      "confirmed"
+    );
+  }
+
+  private async handleFundsDisbursed(rawLog: string, txSig: string): Promise<void> {
+    const solScanLink = `https://solscan.io/tx/${txSig}?cluster=devnet`;
+    const campusAdminEmail = process.env.CAMPUS_ADMIN_EMAIL || "grants-office@university.edu";
+
+    await this.sendTransactionalEmail(
+      campusAdminEmail,
+      "🎓 Capital Disbursed: UniVibe Milestone Complete",
+      `<h2>Milestone Grant Payout Finalized</h2>
+       <p>A verified milestone disbursement has executed on-chain.</p>
+       <p><strong>Transaction Signature:</strong> <a href="${solScanLink}">${txSig}</a></p>`
+    );
+
+    await this.postDiscordBroadcast(
+      "🚀 Campus Grant Released!",
+      "A student founder has fulfilled their milestone requirements and claimed escrow funds.",
+      [
+        { name: "Explorer Verification", value: `[View on Solscan](${solScanLink})` },
+        { name: "Settlement Speed", value: "Sub-second Finality" },
+      ]
+    );
+  }
+
+  private async handleMilestoneAttested(rawLog: string, txSig: string): Promise<void> {
+    await this.postDiscordBroadcast(
+      "✍️ Mentor Milestone Attestation Recorded",
+      "A faculty evaluator has verified an academic research deliverable on-chain.",
+      [{ name: "Tx Proof", value: txSig }]
+    );
   }
 }
 
-// Direct Execution Bootstrap
+// Turnkey startup
 if (require.main === module) {
-  const relayer = new UniVibeRelayerService();
-  relayer.startListener().catch((err) => {
-    console.error("Fatal Relayer Error:", err);
+  const relayer = new UniVibeRelayer();
+  relayer.start().catch((err) => {
+    console.error("[FATAL RELAYER RUNTIME ERROR]", err);
     process.exit(1);
   });
 }

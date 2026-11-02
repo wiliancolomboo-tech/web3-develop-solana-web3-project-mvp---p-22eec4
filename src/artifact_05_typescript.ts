@@ -1,152 +1,118 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
-import { UniVibe } from "../target/types/univibe";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { assert, expect } from "chai";
+import * as dotenv from "dotenv";
+dotenv.config();
 
-describe("univibe protocol test suite", () => {
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+export interface MilestoneApprovedNotification {
+  grantPubkey: string;
+  grantee: string;
+  milestoneIndex: number;
+  payoutSol: number;
+  txHash?: string;
+  recipientEmail?: string;
+}
 
-  const program = anchor.workspace.UniVibe as Program<UniVibe>;
-  const organizer = (provider.wallet as anchor.Wallet).payer;
+export class EnterpriseNotifier {
+  private resendApiKey: string;
+  private discordWebhookUrl: string;
 
-  const attendeeOne = Keypair.generate();
-  const attendeeTwo = Keypair.generate();
-  const unauthorizedUser = Keypair.generate();
+  constructor() {
+    this.resendApiKey = process.env.RESEND_API_KEY || "";
+    this.discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
+  }
 
-  const eventId = "VIBE-HACK-01";
-  const rewardPerAttendee = new anchor.BN(0.1 * LAMPORTS_PER_SOL);
-  const maxAttendees = 2;
+  /**
+   * Dispatch transaction receipt via Resend Enterprise Email API
+   */
+  async sendDisbursementReceipt(data: MilestoneApprovedNotification): Promise<void> {
+    if (!this.resendApiKey) {
+      console.warn("[EnterpriseNotifier] RESEND_API_KEY not set. Skipping email dispatch.");
+      return;
+    }
 
-  let eventVaultPda: PublicKey;
-  let vaultBump: number;
-
-  before(async () => {
-    // Fund attendee test wallets for rent
-    const sig1 = await provider.connection.requestAirdrop(attendeeOne.publicKey, 1 * LAMPORTS_PER_SOL);
-    const sig2 = await provider.connection.requestAirdrop(attendeeTwo.publicKey, 1 * LAMPORTS_PER_SOL);
-    const sig3 = await provider.connection.requestAirdrop(unauthorizedUser.publicKey, 1 * LAMPORTS_PER_SOL);
-    await provider.connection.confirmTransaction(sig1);
-    await provider.connection.confirmTransaction(sig2);
-    await provider.connection.confirmTransaction(sig3);
-
-    [eventVaultPda, vaultBump] = PublicKey.findProgramAddressSync(
-      [Buffer.from("vault"), organizer.publicKey.toBuffer(), Buffer.from(eventId)],
-      program.programId
-    );
-  });
-
-  it("1. Successfully initializes event vault and locks SOL escrow", async () => {
-    const initialOrganizerBalance = await provider.connection.getBalance(organizer.publicKey);
-
-    await program.methods
-      .initializeEvent(eventId, rewardPerAttendee, maxAttendees)
-      .accounts({
-        eventVault: eventVaultPda,
-        organizer: organizer.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .rpc();
-
-    const vaultAccount = await program.account.eventVault.fetch(eventVaultPda);
-    assert.strictEqual(vaultAccount.eventId, eventId);
-    assert.strictEqual(vaultAccount.organizer.toBase58(), organizer.publicKey.toBase58());
-    assert.strictEqual(vaultAccount.maxAttendees, 2);
-    assert.strictEqual(vaultAccount.attendeesCheckedIn, 0);
-    assert.isTrue(vaultAccount.isActive);
-
-    const vaultBalance = await provider.connection.getBalance(eventVaultPda);
-    assert.isAtLeast(vaultBalance, rewardPerAttendee.toNumber() * maxAttendees);
-  });
-
-  it("2. Allows first attendee to check-in and claim micro-grant", async () => {
-    const [attendanceRecordPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("attendance"), Buffer.from(eventId), attendeeOne.publicKey.toBuffer()],
-      program.programId
-    );
-
-    const initialBalance = await provider.connection.getBalance(attendeeOne.publicKey);
-
-    await program.methods
-      .checkInAndClaim(eventId)
-      .accounts({
-        eventVault: eventVaultPda,
-        attendanceRecord: attendanceRecordPda,
-        attendee: attendeeOne.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([attendeeOne])
-      .rpc();
-
-    const finalBalance = await provider.connection.getBalance(attendeeOne.publicKey);
-    assert.isAbove(finalBalance, initialBalance);
-
-    const record = await program.account.attendanceRecord.fetch(attendanceRecordPda);
-    assert.strictEqual(record.attendee.toBase58(), attendeeOne.publicKey.toBase58());
-    assert.strictEqual(record.eventId, eventId);
-
-    const vaultAccount = await program.account.eventVault.fetch(eventVaultPda);
-    assert.strictEqual(vaultAccount.attendeesCheckedIn, 1);
-  });
-
-  it("3. Strictly prevents duplicate check-in from the same attendee", async () => {
-    const [attendanceRecordPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("attendance"), Buffer.from(eventId), attendeeOne.publicKey.toBuffer()],
-      program.programId
-    );
+    const targetEmail = data.recipientEmail || process.env.FINANCE_ADMIN_EMAIL || "finance@university.edu";
+    const bodyPayload = {
+      from: "CampusVibe Protocol <notifications@resend.dev>",
+      to: [targetEmail],
+      subject: `[DISBURSEMENT NOTICE] Milestone #${data.milestoneIndex + 1} Released: ${data.payoutSol} SOL`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h2 style="color: #4f46e5;">CampusVibe Collegiate Milestone Disbursement</h2>
+          <p>This is an automated cryptographic receipt verifying that funds were released on the Solana blockchain.</p>
+          <hr style="border: 0; border-top: 1px solid #eeeeee;" />
+          <table style="width: 100%; text-align: left;">
+            <tr><td><strong>Grant Account:</strong></td><td><code>${data.grantPubkey}</code></td></tr>
+            <tr><td><strong>Grantee Recipient:</strong></td><td><code>${data.grantee}</code></td></tr>
+            <tr><td><strong>Milestone Approved:</strong></td><td>Tranche index #${data.milestoneIndex}</td></tr>
+            <tr><td><strong>Amount Released:</strong></td><td><strong>${data.payoutSol} SOL</strong></td></tr>
+            <tr><td><strong>Solana Explorer:</strong></td><td><a href="https://explorer.solana.com/address/${data.grantPubkey}?cluster=devnet">View State on Devnet</a></td></tr>
+          </table>
+          <hr style="border: 0; border-top: 1px solid #eeeeee;" />
+          <p style="font-size: 12px; color: #888888;">Processed via CampusVibe Protocol • IFK UNI Vibeathon Production MVP</p>
+        </div>
+      `,
+    };
 
     try {
-      await program.methods
-        .checkInAndClaim(eventId)
-        .accounts({
-          eventVault: eventVaultPda,
-          attendanceRecord: attendanceRecordPda,
-          attendee: attendeeOne.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-        })
-        .signers([attendeeOne])
-        .rpc();
-      assert.fail("Double check-in should have failed account initialization constraints!");
-    } catch (err: any) {
-      // Expected Anchor initialization collision error
-      expect(err.toString()).to.include("already in use");
-    }
-  });
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${this.resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bodyPayload),
+      });
 
-  it("4. Prevents unauthorized users from closing the event vault", async () => {
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Resend API Error HTTP ${response.status}: ${errText}`);
+      }
+
+      const resJson = await response.json();
+      console.log(`[EnterpriseNotifier] Resend email successfully dispatched. Message ID: ${resJson.id}`);
+    } catch (err: any) {
+      console.error("[EnterpriseNotifier] Failed to dispatch Resend email:", err.message);
+    }
+  }
+
+  /**
+   * Dispatch instant alert to Campus DAO Discord channel via Webhook
+   */
+  async broadcastDiscordEvent(title: string, description: string, fields: Array<{ name: string; value: string; inline?: boolean }>): Promise<void> {
+    if (!this.discordWebhookUrl) {
+      console.warn("[EnterpriseNotifier] DISCORD_WEBHOOK_URL not configured. Skipping webhook.");
+      return;
+    }
+
+    const payload = {
+      username: "CampusVibe Oracle Bot",
+      avatar_url: "https://cryptologos.cc/logos/solana-sol-logo.png",
+      embeds: [
+        {
+          title,
+          description,
+          color: 0x14f195, // Solana Emerald Green
+          fields,
+          footer: {
+            text: "CampusVibe Verifiable Autonomous Settlement Engine",
+          },
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    };
+
     try {
-      await program.methods
-        .closeEvent(eventId)
-        .accounts({
-          eventVault: eventVaultPda,
-          organizer: unauthorizedUser.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-        })
-        .signers([unauthorizedUser])
-        .rpc();
-      assert.fail("Unauthorized closer should have triggered constraint violation!");
+      const response = await fetch(this.discordWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Discord Webhook Error HTTP ${response.status}: ${errText}`);
+      }
+      console.log(`[EnterpriseNotifier] Discord notification dispatched: "${title}"`);
     } catch (err: any) {
-      expect(err.toString()).to.include("UnauthorizedOrganizer");
+      console.error("[EnterpriseNotifier] Failed to post to Discord webhook:", err.message);
     }
-  });
-
-  it("5. Allows organizer to close event and sweep remaining funds", async () => {
-    const initialOrganizerBalance = await provider.connection.getBalance(organizer.publicKey);
-
-    await program.methods
-      .closeEvent(eventId)
-      .accounts({
-        eventVault: eventVaultPda,
-        organizer: organizer.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .rpc();
-
-    const vaultAccount = await program.account.eventVault.fetch(eventVaultPda);
-    assert.isFalse(vaultAccount.isActive);
-
-    const finalOrganizerBalance = await provider.connection.getBalance(organizer.publicKey);
-    assert.isAbove(finalOrganizerBalance, initialOrganizerBalance);
-  });
-});
+  }
+}

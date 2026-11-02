@@ -1,0 +1,18 @@
+1/3 🎓 Lump-sum campus grants are broken. 43% of student hackathon projects abandon ship after funding. 
+
+Introducing @VibeStream for the IFK UNI Vibeathon — autonomous, milestone-gated micro-grants & verifiable student credentials built natively on @Solana. ⚡️
+
+2/3 🛠️ Architecture highlights:
+🔒 Non-custodial PDA Escrows lock grant capital
+🤝 2-of-2 consensus between Student & Faculty Mentor releases tranches
+⚡ 0.4s Solana finality = instant funding
+📧 Real-time audit trails via @Resend & Discord alerts
+💸 Auto-refund timeouts for university treasuries
+
+3/3 🏆 Open-source, production-ready, and turnkey dockerized. 
+Collegiate innovation shouldn't be managed on spreadsheets. Let's make campus builders unstoppable on Solana.
+
+Github: https://github.com/vibestream/vibestream-solana
+Demo: https://vibestream.network
+
+cc @SolanaUniv @SolanaFndn #Solana #IFKUniVibeathon #SolanaDevs
