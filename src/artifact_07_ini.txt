@@ -1,6 +1,6 @@
 SOLANA_RPC_URL=https://api.devnet.solana.com
 SOLANA_WS_URL=wss://api.devnet.solana.com
 PROGRAM_ID=UniVibe1111111111111111111111111111111111111
-RESEND_API_KEY=re_123456789_enterprise_prod_token
+RESEND_API_KEY=re_test_000000000000000000000000
 AUDIT_EMAIL_RECIPIENT=ifk-vibeathon-judges@univibe.internal
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder

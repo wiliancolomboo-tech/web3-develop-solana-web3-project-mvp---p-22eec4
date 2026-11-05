@@ -11,7 +11,7 @@ cat <<EOF > .env
 SOLANA_RPC_URL=https://api.devnet.solana.com
 PROGRAM_ID=$(solana address -k ./target/deploy/univibe-keypair.json)
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-RESEND_API_KEY=re_your_api_key_here
+RESEND_API_KEY=re_test_000000000000000000000000
 NOTIFICATION_EMAIL=treasury@univibe.edu
 EOF
 

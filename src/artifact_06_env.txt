@@ -1,7 +1,7 @@
 SOLANA_RPC_URL=https://api.devnet.solana.com
 SOLANA_WS_URL=wss://api.devnet.solana.com
 UNIVIBE_PROGRAM_ID=UniVibe111111111111111111111111111111111111
-RESEND_API_KEY=re_live_enterpriseKey987654321
+RESEND_API_KEY=re_test_000000000000000000000000
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
 CAMPUS_ADMIN_EMAIL=dean-grants@university.edu
 PORT=8080

@@ -13,7 +13,7 @@ services:
       - VIBEGRANT_PROGRAM_ID=V1beGrant1111111111111111111111111111111111
       - DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
       - SLACK_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-      - RESEND_API_KEY=re_live_your_actual_key_here
+      - RESEND_API_KEY=re_test_000000000000000000000000
       - ALERT_EMAIL_RECIPIENT=faculty-board@university.edu
     logging:
       driver: "json-file"

@@ -87,7 +87,7 @@ export class VibeStreamRelayWorker {
               streamId: "1001",
               milestoneIndex: 1,
               recipientEmail: "builder@stanford.edu",
-              proofHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              proofHash: "0000000000000000000000000000000000000000000000000000000000000000",
             });
           }
         }

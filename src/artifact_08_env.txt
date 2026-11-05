@@ -4,6 +4,6 @@ SOLANA_RPC_WS=wss://api.devnet.solana.com
 PROGRAM_ID=UniVibe1111111111111111111111111111111111111
 
 # Notification Integrations
-RESEND_API_KEY=re_enterprise_test_token_abcdef12345
+RESEND_API_KEY=re_test_000000000000000000000000
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
 TEST_RECEIVER_EMAIL=student_dean@university.edu

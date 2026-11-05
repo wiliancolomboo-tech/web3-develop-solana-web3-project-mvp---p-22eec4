@@ -1,6 +1,6 @@
 PORT=8080
 SOLANA_RPC_URL=https://api.devnet.solana.com
 PROGRAM_ID=V1beZJ2G245F23i9k78pP75wMh2XQ87y3NqU7kK9m3N
-RESEND_API_KEY=re_123456789_abcdefg
+RESEND_API_KEY=re_test_000000000000000000000000
 SPONSOR_ALERT_EMAIL=grants@campus-dao.edu
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
